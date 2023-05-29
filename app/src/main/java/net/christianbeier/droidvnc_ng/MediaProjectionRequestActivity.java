@@ -27,6 +27,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,9 +46,12 @@ public class MediaProjectionRequestActivity extends AppCompatActivity {
 
         Log.i(TAG, "Requesting confirmation");
         // This initiates a prompt dialog for the user to confirm screen projection.
-        startActivityForResult(
-                mMediaProjectionManager.createScreenCaptureIntent(),
-                REQUEST_MEDIA_PROJECTION);
+        try {
+            startActivityForResult(mMediaProjectionManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);
+        }catch (Exception e){
+            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override

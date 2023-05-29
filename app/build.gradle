@@ -1,15 +1,72 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
+def getVersionCode = { ->
+    return project.hasProperty('versionCode') ? versionCode.toInteger() : 19;
+}
+
+def getVersionName = { ->
+    // version number properties are set by Teamcity, for local builds please supply correct defaults for major/minor
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(new Date());
+    SimpleDateFormat df_date = new SimpleDateFormat("yyDDDHHmm");
+    String revision = getVersionCode() + "." + df_date.format(calendar.getTime());
+    def major = project.hasProperty('versionNameMajor') ? versionNameMajor.toInteger() : 1
+    def minor = project.hasProperty('versionNameMinor') ? versionNameMinor.toInteger() : 3
+    def buildRevision = project.hasProperty('versionNameRevision') ? versionNameRevision.toInteger() : revision
+    def name = String.format("%d.%d.%s", major, minor, buildRevision)
+    println "VersionCode is set to $revision"
+    println "VersionName is set to $name"
+    return name
+}
+
 android {
+
     compileSdkVersion 31
+    flavorDimensions 'default'
+
+    lintOptions {
+        checkOnly 'NewApi', 'HandlerLeak'
+        baseline file("lint-baseline.xml")
+        abortOnError false
+    }
+
+    signingConfigs {
+        v1 {
+            keyAlias 'v1'
+            keyPassword 'lacodoma'
+            storeFile file('keystore.jks')
+            storePassword 'lacodoma'
+        }
+        v3 {
+            keyAlias 'v3e'
+            keyPassword 'lacodoma'
+            storeFile file('keystore.jks')
+            storePassword 'lacodoma'
+        }
+        rk328 {
+            keyAlias 'rk328'
+            keyPassword 'android'
+            storeFile file('../other/customers/rk328/debug.keystore')
+            storePassword 'android'
+        }
+        rk3399 {
+            keyAlias 'keystore'
+            keyPassword 'android'
+            storeFile file('../other/customers/rk3399/keystore.jks')
+            storePassword 'android'
+        }
+    }
 
     defaultConfig {
-        applicationId "net.christianbeier.droidvnc_ng"
-        minSdkVersion 24
-        targetSdkVersion 31
-        versionCode 18
-        versionName "1.3.5"
+        applicationId "com.stinova.droidvnc_ng"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode getVersionCode()
+        versionName getVersionName()
+        signingConfig signingConfigs.v3
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -24,6 +81,21 @@ android {
             debugSymbolLevel = 'FULL'
         }
 
+    }
+
+    productFlavors {
+        v1 {
+            signingConfig signingConfigs.v1
+        }
+        v3 {
+            signingConfig signingConfigs.v3
+        }
+        rk328 {
+            signingConfig signingConfigs.rk328
+        }
+        rk3399 {
+            signingConfig signingConfigs.rk3399
+        }
     }
 
     buildTypes {

@@ -221,6 +221,7 @@ public class MainService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        Log.d(TAG, "debug-0");
         if(ACTION_HANDLE_MEDIA_PROJECTION_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle media projection result");
             // Step 4 (optional): coming back from capturing permission check, now starting capturing machinery
@@ -231,6 +232,8 @@ public class MainService extends Service {
             return START_REDELIVER_INTENT;
         }
 
+        Log.d(TAG, "debug-1");
+
         if(ACTION_HANDLE_WRITE_STORAGE_RESULT.equals(intent.getAction())) {
             Log.d(TAG, "onStartCommand: handle write storage result");
             // Step 3: coming back from write storage permission check, start capturing
@@ -238,6 +241,7 @@ public class MainService extends Service {
             if (mResultCode != 0 && mResultData != null) {
                 startScreenCapture();
                 // if we got here, we want to restart if we were killed
+                Log.d(TAG, "startScreenCapture: try mMediaProjection2");
                 return START_REDELIVER_INTENT;
             } else {
                 Log.i(TAG, "Requesting confirmation");
@@ -301,10 +305,13 @@ public class MainService extends Service {
     @SuppressLint("WrongConstant")
     private void startScreenCapture() {
 
+        Log.d(TAG, "debug0");
+
         if(mMediaProjection == null)
             try {
+                Log.d(TAG, "startScreenCapture: try mMediaProjection");
                 mMediaProjection = mMediaProjectionManager.getMediaProjection(mResultCode, mResultData);
-            } catch (SecurityException e) {
+            } catch (Exception e) {
                 Log.w(TAG, "startScreenCapture: got SecurityException, re-requesting confirmation");
                 // This initiates a prompt dialog for the user to confirm screen projection.
                 Intent mediaProjectionRequestIntent = new Intent(this, MediaProjectionRequestActivity.class);
@@ -340,6 +347,8 @@ public class MainService extends Service {
 
         // use workaround if flag set and in actual portrait mode
         if(mHasPortraitInLandscapeWorkaroundApplied && scaledWidth < scaledHeight) {
+
+            Log.d(TAG, "debug1");
 
             final float portraitInsideLandscapeScaleFactor = (float)scaledWidth/scaledHeight;
 
@@ -384,7 +393,10 @@ public class MainService extends Service {
                 }
             }, null);
 
+            Log.d(TAG, "debug1.2");
+
             try {
+                Log.d(TAG, "startScreenCapture: try mMediaProjection3");
                 mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
                         quirkyLandscapeWidth, quirkyLandscapeHeight, metrics.densityDpi,
                         DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
@@ -399,6 +411,8 @@ public class MainService extends Service {
 
             return;
         }
+
+        Log.d(TAG, "debug2");
 
         /*
             This is the default behaviour.
@@ -429,7 +443,10 @@ public class MainService extends Service {
             }
         }, null);
 
+        Log.d(TAG, "debug3");
+
         try {
+            Log.d(TAG, "startScreenCapture: try mMediaProjection4");
             mVirtualDisplay = mMediaProjection.createVirtualDisplay(getString(R.string.app_name),
                     scaledWidth, scaledHeight, metrics.densityDpi,
                     DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,

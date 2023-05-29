@@ -32,6 +32,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class WriteStorageRequestActivity extends AppCompatActivity {
@@ -40,6 +41,7 @@ public class WriteStorageRequestActivity extends AppCompatActivity {
     private static final int REQUEST_WRITE_STORAGE = 44;
     private static final String PREFS_KEY_PERMISSION_ASKED_BEFORE = "write_storage_permission_asked_before";
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +58,7 @@ public class WriteStorageRequestActivity extends AppCompatActivity {
                 new AlertDialog.Builder(this)
                         .setCancelable(false)
                         .setTitle(R.string.write_storage_title)
-                        .setMessage(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ? R.string.write_storage_msg_android_11 : R.string.write_storage_msg)
+                        .setMessage(Build.VERSION.SDK_INT >= 30 ? R.string.write_storage_msg_android_11 : R.string.write_storage_msg)
                         .setPositiveButton(R.string.yes, (dialog, which) -> {
                             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
                             SharedPreferences.Editor ed = prefs.edit();
